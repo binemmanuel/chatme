@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Chat App</title>
+
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<section>
+			<div id="chatMessages"></div>
+
+			<form id="chatInput">
+				<input type="text" placeholder="Enter a message" />
+				<input type="submit" />
+			</form>
+		</section>
+
+		<script>
+			const conn = new WebSocket("ws:localhost:8080");
+
+			conn.onopen = (e) => {
+				chatInput.addEventListener("submit", (event) => {
+					event.preventDefault();
+
+					const message = chatInput.querySelector("input[type=text]");
+
+					if (message.value !== "") {
+						const data = {
+							user: 60,
+							message: message.value,
+							to: 90,
+						};
+
+						conn.send(JSON.stringify(data));
+
+						const ptag = document.createElement("p");
+
+						ptag.style.color = "white";
+						ptag.style.background = "green";
+						ptag.style.padding = "10px";
+						ptag.style.margin = "10px";
+						ptag.style.textAlign = "right";
+						ptag.style.borderRadius = "0.2em";
+
+						ptag.innerText = message.value;
+
+						chatMessages.append(ptag);
+
+						message.value = "";
+					}
+				});
+			};
+
+			conn.onmessage = (e) => {
+				const ptag = document.createElement("p");
+
+				ptag.style.color = "black";
+				ptag.style.background = "#e2e2e2";
+				ptag.style.padding = "10px";
+				ptag.style.margin = "10px";
+				ptag.style.borderRadius = "0.2em";
+
+				const data = JSON.parse(e.data);
+
+				ptag.innerText = data.message;
+
+				chatMessages.append(ptag);
+			};
+		</script>
+	</body>
+</html>
